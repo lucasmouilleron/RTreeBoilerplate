@@ -13,36 +13,36 @@ public class SpatialIndexPlus
 
     ////////////////////////////////////////////////////////////////////////////////
     public SpatialIndex spatialIndex;
-    public ArrayList<Rectangle> rectangles;
+    public ArrayList<GeoData> geoDatas;
 
     ////////////////////////////////////////////////////////////////////////////////
     public SpatialIndexPlus()
     {
         spatialIndex = new RTree();
         spatialIndex.init(null);
-        rectangles = new ArrayList<>();
+        geoDatas = new ArrayList<>();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    public RectangleIndexed addPoint(Point point)
+    public GeoData addGeoData(Point point, Object data)
     {
-        return addRectangle(point.x, point.y, point.x, point.y);
+        return addRectangle(point.x, point.y, point.x, point.y, data);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    public RectangleIndexed addPoint(float x, float y)
+    public GeoData addGeoData(float x, float y, Object data)
     {
-        return addPoint(new Point(x, y));
+        return addGeoData(new Point(x, y), data);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     public boolean removePoint(Point point)
     {
-        ArrayList<RectangleIndexed> founds = finNearestRectangles(point, 1);
+        ArrayList<GeoData> founds = finNearestGeoDatas(point, 1);
         if(founds.size() == 1)
         {
             spatialIndex.delete(founds.get(0), founds.get(0).id);
-            rectangles.remove(founds.get(0).id);
+            geoDatas.remove(founds.get(0).id);
             return true;
         }
         else
@@ -58,55 +58,65 @@ public class SpatialIndexPlus
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    public RectangleIndexed addRectangle(Rectangle rectangle)
+    protected GeoData addRectangle(Rectangle rectangle, Object data)
     {
-        int index = rectangles.size();
-        RectangleIndexed rectangleIndexed = new RectangleIndexed(rectangle, index);
-        rectangles.add(rectangles.size(), rectangleIndexed);
-        spatialIndex.add(rectangles.get(index), index);
-        return rectangleIndexed;
+        int index = geoDatas.size();
+        GeoData geoData = new GeoData(rectangle, index, data);
+        geoDatas.add(geoDatas.size(), geoData);
+        spatialIndex.add(geoDatas.get(index), index);
+        return geoData;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    public RectangleIndexed addRectangle(float x1, float y1, float x2, float y2)
+    protected GeoData addRectangle(float x1, float y1, float x2, float y2, Object data)
     {
-        return addRectangle(new Rectangle(x1, y1, x2, y2));
+        return addRectangle(new Rectangle(x1, y1, x2, y2), data);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    public ArrayList<RectangleIndexed> finNearestRectangles(Point pointToFind, int nbPoints)
+    public ArrayList<GeoData> finNearestGeoDatas(Point pointToFind, int nbPoints)
     {
-        ArrayList<RectangleIndexed> foundRectangles = new ArrayList<>();
+        ArrayList<GeoData> foundGeoDatas = new ArrayList<>();
         spatialIndex.nearestN(pointToFind, new TIntProcedure()
         {
+            @Override
             public boolean execute(int i)
             {
-                foundRectangles.add(new RectangleIndexed(rectangles.get(i), i));
+                foundGeoDatas.add(geoDatas.get(i));
                 return true;
             }
         }, nbPoints, Float.MAX_VALUE);
-        return foundRectangles;
+        return foundGeoDatas;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    public class RectangleIndexed extends Rectangle
+    public class GeoData extends Rectangle
     {
 
         int id;
+        Object data;
 
-        public RectangleIndexed(float x1, float y1, float x2, float y2, int id)
+        public GeoData(float x1, float y1, float x2, float y2, int id, Object data)
         {
             super(x1, y1, x2, y2);
             this.id = id;
+            this.data = data;
         }
 
-        public RectangleIndexed(Rectangle rectangle, int id)
+        public GeoData(Rectangle rectangle, int id, Object data)
         {
             this.minX = rectangle.minX;
             this.maxX = rectangle.maxX;
             this.minY = rectangle.minY;
             this.maxY = rectangle.maxY;
             this.id = id;
+            this.data = data;
+        }
+
+        @Override
+        public String toString()
+        {
+            return minX + " / " + minY + " // " + maxX + " / " + maxY + " : " + id + " // " + data;
         }
     }
 }
