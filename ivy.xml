@@ -13,6 +13,7 @@
 
         <!--///////////////////////////////////////////////////////////////-->
         <dependency org="org.slf4j" name="slf4j-api" rev="1.7.13" />
+        <dependency org="org.slf4j" name="slf4j-simple" rev="1.7.16" />
 
     </dependencies>
 </ivy-module>

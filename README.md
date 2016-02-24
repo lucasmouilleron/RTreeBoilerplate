@@ -9,4 +9,4 @@ Run
 - `ant getDependencies`
 - `ant run`
 
-![Screenshot](http://grabs.lucasmouilleron.com/Screen%20Shot%202015-11-23%20at%2016.56.55.png)
+![Screenshot](http://grabs.lucasmouilleron.com/Screen%20Shot%202016-02-24%20at%2010.14.52.png)
